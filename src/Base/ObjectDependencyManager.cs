@@ -115,6 +115,37 @@ namespace XAMLMarkupExtensions.Base
         }
 
         /// <summary>
+        /// Remove previously registered object dependency. 
+        /// </summary>
+        /// <exception cref="System.ArgumentNullException">
+        /// The <paramref name="objToHold"/> cannot be null
+        /// </exception>
+        /// <exception cref="System.ArgumentNullException">
+        /// The <paramref name="weakRefDp"/> cannot be null
+        /// </exception>
+        public static void RemoveObjectDependency(WeakReference weakRefDp, object objToHold)
+        {
+            if (objToHold == null)
+            {
+                throw new ArgumentNullException(nameof(objToHold), "The objToHold cannot be null");
+            }
+
+            if (weakRefDp == null)
+            {
+                throw new ArgumentNullException(nameof(weakRefDp), "The weakRefDp cannot be null");
+            }
+            
+            if (!internalList.TryGetValue(objToHold, out var dependencies))
+                return;
+
+            dependencies.Remove(weakRefDp);
+
+            // If there is not other dependencies - remove object.
+            if (dependencies.Count == 0)
+                internalList.Remove(objToHold);
+        }
+        
+        /// <summary>
         /// This method cleans up all independent (!<see cref="WeakReference"/>.IsAlive) objects.
         /// </summary>
         public static void CleanUp()
